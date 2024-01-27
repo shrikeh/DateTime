@@ -5,17 +5,18 @@ declare(strict_types=1);
 namespace Shrikeh\DateTime\Range\Exception;
 
 use RuntimeException;
+use Shrikeh\DateTime\Exception\Message;
 use Shrikeh\DateTime\Range;
 
 final class InsufficientDatesToCreatePeriod extends RuntimeException implements RangeException
 {
+    private const MSG = Message::INSUFFICIENT_DATES_FOR_PERIOD;
+
+    /**
+     * @param Range $range
+     */
     public function __construct(public readonly Range $range)
     {
-        parent::__construct(
-            sprintf(
-                'Two or more datetimes are required to build a Period from a Range, but there are only %d',
-                $this->range->count(),
-            )
-        );
+        parent::__construct(self::MSG->msg($this->range->count()));
     }
 }

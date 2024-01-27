@@ -8,6 +8,8 @@ use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 use PHPUnit\Framework\TestCase;
+use Shrikeh\DateTime\Exception\Message;
+use Shrikeh\DateTime\Period;
 use Shrikeh\DateTime\Range;
 use Shrikeh\DateTime\Range\Exception\InsufficientDatesToCreatePeriod;
 
@@ -42,7 +44,14 @@ final class RangeTest extends TestCase
         $lastWeek = new DateTimeImmutable('-1 week');
         $newRange = $range->add($lastWeek);
 
-        $this->assertSame($lastWeek->format(DATE_ATOM), $newRange->dateTimes[0]->format(DATE_ATOM));
+        $this->assertSame(
+            $lastWeek->format(DATE_ATOM),
+            $newRange->dateTimes[0]->format(DATE_ATOM)
+        );
+        $this->assertSame(
+            $sevenDays->format(DATE_ATOM),
+            $newRange->latest()->format(DATE_ATOM)
+        );
     }
 
     public function testItReturnsTheFirstDateTime()
@@ -67,10 +76,20 @@ final class RangeTest extends TestCase
         $this->assertSame($sevenDays->format(DATE_ATOM), $range->latest()->format(DATE_ATOM));
     }
 
+    public function testItCreatesAPeriod(): void
+    {
+        $sevenDays = new DateTime('+7 days');
+        $anHourAgo = new DateTimeImmutable('-1 hour');
+        $range = Range::fromDateTimes($sevenDays, $anHourAgo);
+        $period = Period::create($sevenDays, $anHourAgo);
+        $this->assertEquals($period, $range->period());
+    }
+
     public function testItThrowsAnExceptionIfThereAreInsufficientDatesToCreateAPeriod()
     {
         $range = Range::fromDateTimes(new DateTimeImmutable());
         $this->expectExceptionObject(new InsufficientDatesToCreatePeriod($range));
+        $this->expectExceptionMessage(Message::INSUFFICIENT_DATES_FOR_PERIOD->msg(1));
         $range->period();
     }
 }

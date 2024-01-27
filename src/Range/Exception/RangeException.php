@@ -8,5 +8,4 @@ use Shrikeh\DateTime\Exception\DateTimeException;
 
 interface RangeException extends DateTimeException
 {
-
 }
