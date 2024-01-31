@@ -127,17 +127,33 @@ final class PeriodTest extends TestCase
     {
         $start = new DateTimeImmutable('2024-03-01 19:30:00');
         $end = new DateTimeImmutable('2024-03-01 22:30:00');
-
         $recurUntil = new DateTimeImmutable('2024-03-30 22:30:00');
-
         $weekly = new DateInterval('P1D');
-
         $period = Period::create(
             $start,
             $end,
         );
         $recurrence = $period;
         $periods = 0;
+
+        foreach ($period->recurUntil($weekly, $recurUntil, true) as $recurringPeriod) {
+            $this->assertEquals(
+                $recurrence->start->add($weekly),
+                $recurringPeriod->start,
+            );
+            $recurrence = $recurringPeriod;
+            $periods++;
+        }
+
+        $this->assertSame(29, $periods);
+
+        $this->assertEquals(
+            $recurUntil,
+            $recurrence->end,
+        );
+
+        $periods = 0;
+        $recurrence = $period;
         foreach ($period->recurUntil($weekly, $recurUntil) as $recurringPeriod) {
             $this->assertEquals(
                 $recurrence->start->add($weekly),

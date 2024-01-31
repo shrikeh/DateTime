@@ -9,6 +9,8 @@ use DatePeriod;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Generator;
+use Shrikeh\DateTime\Range\RangeInterface;
+use Shrikeh\DateTime\Range\Unbounded;
 
 readonly final class Period
 {
@@ -19,14 +21,14 @@ readonly final class Period
      */
     public static function create(DateTimeInterface $first, DateTimeInterface $second): self
     {
-        return self::fromRange(Range::fromDateTimes($first, $second));
+        return self::fromRange(Unbounded::fromDateTimes($first, $second));
     }
 
     /**
-     * @param Range $range
+     * @param RangeInterface $range
      * @return self
      */
-    public static function fromRange(Range $range): self
+    public static function fromRange(RangeInterface $range): self
     {
         return new self($range->earliest(), $range->latest());
     }

@@ -3,10 +3,10 @@ ARG PHP_IMAGE_APP_VERSION="cli-alpine3.19"
 FROM "php:${PHP_IMAGE_APP_VERSION}" as base
 RUN apk add --update gcc autoconf icu-dev yaml-dev linux-headers
 RUN apk add --no-cache --virtual .phpize-deps ${PHPIZE_DEPS}
-RUN pecl install -o -f pcov pcntl posix yaml
+RUN pecl install -o -f pcntl posix yaml pcov
 RUN docker-php-ext-configure intl
 RUN docker-php-ext-install bcmath intl
-RUN docker-php-ext-enable opcache pcov bcmath yaml
+RUN docker-php-ext-enable opcache bcmath yaml pcov
 
 FROM base AS composer
 WORKDIR /composer
@@ -29,7 +29,7 @@ RUN chmod +x "${LOCAL_BIN_PATH}/composer"
 
 RUN apk add git openssh
 
-WORKDIR /shrikeh
+WORKDIR /Shrikeh/DateTime
 
 # Copy in only the files and directories needed for the app from the working directory
 ADD ./.env ./
@@ -58,16 +58,18 @@ VOLUME /cache
 RUN chown root:root /cache
 RUN chmod 0777 /cache
 
-WORKDIR /shrikeh
-VOLUME /shrikeh
-COPY --from=shrikeh /shrikeh /shrikeh
+WORKDIR /Shrikeh/DateTime
+VOLUME /Shrikeh/DateTime
+COPY --from=shrikeh /Shrikeh/DateTime /Shrikeh/DateTime
 
 RUN composer validate
-RUN chown -R www-data:www-data /shrikeh
+RUN chown -R www-data:www-data /Shrikeh/DateTime
 
 FROM app as datetime
 ENV GITHUB_TOKEN="${GITHUB_TOKEN}"
 RUN pecl install xdebug
 RUN apk add git
+RUN docker-php-ext-enable xdebug
+ADD dev/docker/services/php/docker-php-ext-xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
 ENTRYPOINT /usr/local/bin/composer test

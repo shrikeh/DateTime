@@ -57,7 +57,10 @@
       "@psalm:fix",
       "@composer normalize"
     ],
-    "infection": "php vendor/bin/infection --show-mutations --threads=8  --min-covered-msi=${MIN_COVERED_MSI:-100} --min-msi=${MIN_MSI:-100}",
+    "infection": [
+      "@putenv INFECTION_ALLOW_XDEBUG=1",
+      "php -d 'xdebug.mode=coverage' vendor/bin/infection -vvv --coverage=build/coverage --show-mutations --threads=8  --min-covered-msi=${MIN_COVERED_MSI:-100} --min-msi=${MIN_MSI:-100}"
+    ],
     "install-codestandards": [
       "Dealerdirect\\Composer\\Plugin\\Installers\\PHPCodeSniffer\\Plugin::run"
     ],
@@ -74,7 +77,7 @@
       "@phpunit:all",
       "@infection"
     ],
-    "phpunit:all": "vendor/bin/phpunit --log-junit ${COVERAGE_DIR:-build/logs}/junit.xml --coverage-text  --coverage-html ${DOCS_DIR:-docs}/coverage  --coverage-cobertura ${COVERAGE_DIR:-build/coverage}/cobertura.xml --coverage-clover ${COVERAGE_DIR:-build/coverage}/clover.xml",
+    "phpunit:all": "vendor/bin/phpunit --coverage-xml=build/coverage/coverage-xml --log-junit ${COVERAGE_DIR:-build/coverage}/junit.xml --coverage-text  --coverage-html ${DOCS_DIR:-docs}/coverage  --coverage-cobertura ${COVERAGE_DIR:-build/coverage}/cobertura.xml --coverage-clover ${COVERAGE_DIR:-build/coverage}/clover.xml --path-coverage",
     "psalm": "vendor/bin/psalm",
     "psalm:fix": "vendor/bin/psalm --alter --issues=all --dry-run",
     "quality": [

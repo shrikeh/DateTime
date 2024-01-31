@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit;
+namespace Tests\Unit\Range;
 
 use DateTime;
 use DateTimeImmutable;
@@ -11,9 +11,10 @@ use PHPUnit\Framework\TestCase;
 use Shrikeh\DateTime\Exception\Message;
 use Shrikeh\DateTime\Period;
 use Shrikeh\DateTime\Range;
+use Shrikeh\DateTime\Range\Unbounded;
 use Shrikeh\DateTime\Range\Exception\InsufficientDatesToCreatePeriod;
 
-final class RangeTest extends TestCase
+final class UnboundedTest extends TestCase
 {
     public function testItSortsDateTimes(): void
     {
@@ -21,7 +22,7 @@ final class RangeTest extends TestCase
         $now = new DateTimeImmutable();
         $anHourAgo = new DateTimeImmutable('-1 hour');
 
-        $range = Range::fromDateTimes($sevenDays, $now, $anHourAgo);
+        $range = Range::unbounded($sevenDays, $now, $anHourAgo);
 
         $expected = array_map(static function (DateTimeInterface $dateTime): string {
             return $dateTime->format(DATE_ATOM);
@@ -40,7 +41,7 @@ final class RangeTest extends TestCase
         $now = new DateTimeImmutable();
         $anHourAgo = new DateTimeImmutable('-1 hour');
 
-        $range = Range::fromDateTimes($sevenDays, $now, $anHourAgo);
+        $range = Unbounded::fromDateTimes($sevenDays, $now, $anHourAgo);
         $lastWeek = new DateTimeImmutable('-1 week');
         $newRange = $range->add($lastWeek);
 
@@ -60,7 +61,7 @@ final class RangeTest extends TestCase
         $now = new DateTimeImmutable();
         $anHourAgo = new DateTimeImmutable('-1 hour');
 
-        $range = Range::fromDateTimes($sevenDays, $now, $anHourAgo);
+        $range = Unbounded::fromDateTimes($sevenDays, $now, $anHourAgo);
 
         $this->assertSame($anHourAgo->format(DATE_ATOM), $range->earliest()->format(DATE_ATOM));
     }
@@ -71,7 +72,7 @@ final class RangeTest extends TestCase
         $now = new DateTimeImmutable();
         $anHourAgo = new DateTimeImmutable('-1 hour');
 
-        $range = Range::fromDateTimes($sevenDays, $now, $anHourAgo);
+        $range = Unbounded::fromDateTimes($sevenDays, $now, $anHourAgo);
 
         $this->assertSame($sevenDays->format(DATE_ATOM), $range->latest()->format(DATE_ATOM));
     }
@@ -80,14 +81,14 @@ final class RangeTest extends TestCase
     {
         $sevenDays = new DateTime('+7 days');
         $anHourAgo = new DateTimeImmutable('-1 hour');
-        $range = Range::fromDateTimes($sevenDays, $anHourAgo);
+        $range = Unbounded::fromDateTimes($sevenDays, $anHourAgo);
         $period = Period::create($sevenDays, $anHourAgo);
         $this->assertEquals($period, $range->period());
     }
 
     public function testItThrowsAnExceptionIfThereAreInsufficientDatesToCreateAPeriod()
     {
-        $range = Range::fromDateTimes(new DateTimeImmutable());
+        $range = Unbounded::fromDateTimes(new DateTimeImmutable());
         $this->expectExceptionObject(new InsufficientDatesToCreatePeriod($range));
         $this->expectExceptionMessage(Message::INSUFFICIENT_DATES_FOR_PERIOD->msg(1));
         $range->period();
