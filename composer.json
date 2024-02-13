@@ -13,17 +13,23 @@
     "php": ">=8.2"
   },
   "require-dev": {
-    "behat/behat": "^3.0@dev",
     "shrikeh/php-coding-bible": "dev-main",
-    "shrikeh/testing-metapackage": "^0.2.0",
-    "symfony/dotenv": "^7.0"
+    "symfony/dotenv": "^7.0",
+    "behat/behat": "*",
+    "ergebnis/composer-normalize": "*",
+    "infection/infection": "*",
+    "jangregor/phpstan-prophecy": "*",
+    "phpmd/phpmd": "*",
+    "phpmetrics/phpmetrics": "*",
+    "phpspec/prophecy-phpunit": "*",
+    "phpstan/extension-installer": "*",
+    "phpstan/phpstan": "*",
+    "phpunit/php-code-coverage": "*",
+    "phpunit/phpcov": "*",
+    "phpunit/phpunit": "*",
+    "squizlabs/php_codesniffer": "*",
+    "vimeo/psalm": "*"
   },
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "https://github.com/shrikeh/php-coding-bible"
-    }
-  ],
   "minimum-stability": "dev",
   "autoload": {
     "psr-4": {
