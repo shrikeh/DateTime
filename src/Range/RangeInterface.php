@@ -18,12 +18,16 @@ interface RangeInterface extends Countable
     /**
      * @return DateTimeImmutable|null
      */
-    public function earliest(): ?DateTimeImmutable;
+    public function earliest(): ?DateTimeInterface;
 
     /**
      * @return DateTimeImmutable|null
      */
-    public function latest(): ?DateTimeImmutable;
+    public function latest(): ?DateTimeInterface;
 
-    public function period(): Period;
+    public function toPeriod(): Period;
+
+    public function in(Period $period);
+
+    public function intervals();
 }

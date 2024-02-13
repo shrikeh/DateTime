@@ -4,19 +4,27 @@ declare(strict_types=1);
 
 namespace Shrikeh\DateTime\Range;
 
-use Shrikeh\DateTime\Period;
-use DateTimeImmutable;
+use ArrayObject;
 use DateTimeInterface;
 use Generator;
-use Shrikeh\DateTime\Range\Exception\InsufficientDatesToCreatePeriod;
+use Shrikeh\DateTime\Range\Traits\Count;
+use Shrikeh\DateTime\Range\Traits\Earliest;
+use Shrikeh\DateTime\Range\Traits\InPeriod;
+use Shrikeh\DateTime\Range\Traits\Intervals;
+use Shrikeh\DateTime\Range\Traits\Invokeable;
+use Shrikeh\DateTime\Range\Traits\Latest;
+use Shrikeh\DateTime\Range\Traits\ToPeriod;
 use SplFixedArray;
 
 final readonly class Unbounded implements RangeInterface
 {
-    /**
-     * @var SplFixedArray<DateTimeImmutable>
-     */
-    public SplFixedArray $dateTimes;
+    use InPeriod;
+    use Count;
+    use Earliest;
+    use Latest;
+    use Invokeable;
+    use Intervals;
+    use ToPeriod;
 
     /**
      * @param DateTimeInterface ...$dateTimes
@@ -24,42 +32,14 @@ final readonly class Unbounded implements RangeInterface
      */
     public static function fromDateTimes(DateTimeInterface ...$dateTimes): self
     {
-        return new self(...array_map(static function (DateTimeInterface $dateTime): DateTimeImmutable {
-            return DateTimeImmutable::createFromInterface($dateTime);
-        }, $dateTimes));
+        return new self(SplFixedArray::fromArray($dateTimes));
     }
 
     /**
-     * @param DateTimeImmutable ...$dateTimes
+     * @param SplFixedArray<DateTimeInterface> $dateTimes
      */
-    private function __construct(DateTimeImmutable ...$dateTimes)
+    private function __construct(private SplFixedArray $dateTimes)
     {
-        usort($dateTimes, static function (DateTimeImmutable $first, DateTimeImmutable $second): int {
-            return $first <=> $second;
-        });
-
-        $this->dateTimes = SplFixedArray::fromArray($dateTimes);
-    }
-
-    /**
-     * @return Generator<DateTimeImmutable>
-     */
-    public function __invoke(): Generator
-    {
-        foreach ($this->dateTimes as $dateTime) {
-            yield $dateTime;
-        }
-    }
-
-    /**
-     * @return Period
-     */
-    public function period(): Period
-    {
-        if ($this->count() < 2) {
-            throw new InsufficientDatesToCreatePeriod($this);
-        }
-        return Period::fromRange($this);
     }
 
     /**
@@ -67,30 +47,20 @@ final readonly class Unbounded implements RangeInterface
      */
     public function add(DateTimeInterface ...$dateTimes): self
     {
-        return self::fromDateTimes(...array_merge((array) $this->dateTimes, $dateTimes));
+        return self::fromDateTimes(...array_merge(iterator_to_array($this->dates()), $dateTimes));
     }
 
     /**
-     * @inheritDoc
+     * @return Generator<DateTimeInterface>
      */
-    public function earliest(): DateTimeImmutable
+    private function dates(): Generator
     {
-        return $this->dateTimes[array_key_first($this->dateTimes->toArray())];
-    }
+        $dates = new ArrayObject($this->dateTimes->toArray());
 
-    /**
-     * @inheritdoc
-     */
-    public function latest(): DateTimeImmutable
-    {
-        return $this->dateTimes[array_key_last($this->dateTimes->toArray())];
-    }
+        $dates->uasort(static function (DateTimeInterface $first, DateTimeInterface $second): int {
+            return $first <=> $second;
+        });
 
-    /**
-     * @inheritDoc
-     */
-    public function count(): int
-    {
-        return $this->dateTimes->count();
+        yield from $dates;
     }
 }

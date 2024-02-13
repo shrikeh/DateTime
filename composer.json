@@ -13,6 +13,7 @@
     "php": ">=8.2"
   },
   "require-dev": {
+    "behat/behat": "^3.0@dev",
     "shrikeh/php-coding-bible": "dev-main",
     "shrikeh/testing-metapackage": "^0.2.0",
     "symfony/dotenv": "^7.0"
@@ -27,6 +28,12 @@
   "autoload": {
     "psr-4": {
       "Shrikeh\\DateTime\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\Functional\\": "tests/functional/src",
+      "Tests\\Unit\\": "tests/unit/src"
     }
   },
   "config": {

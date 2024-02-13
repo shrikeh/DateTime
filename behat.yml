@@ -1,0 +1,14 @@
+---
+default:
+  suites:
+    periods:
+      paths:
+        - "%paths.base%/features/Periods"
+      contexts:
+        - Tests\Functional\Context\Periods
+    unbounded:
+      paths:
+        - "%paths.base%/features/Ranges/Unbounded"
+      contexts:
+        - Tests\Functional\Context\UnboundedRanges
+

@@ -23,6 +23,6 @@ final readonly class Range
     ): RangeInterface {
         $unbounded =  Unbounded::fromDateTimes(...$dateTimes);
 
-        return new Bounded($unbounded, $start, $end);
+        return Bounded::create($unbounded, $start, $end);
     }
 }
