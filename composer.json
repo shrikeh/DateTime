@@ -13,7 +13,6 @@
     "php": ">=8.2"
   },
   "require-dev": {
-    "shrikeh/php-coding-bible": "dev-main",
     "symfony/dotenv": "^7.0",
     "behat/behat": "*",
     "ergebnis/composer-normalize": "*",
@@ -26,7 +25,7 @@
     "phpstan/phpstan": "*",
     "phpunit/php-code-coverage": "*",
     "phpunit/phpcov": "*",
-    "phpunit/phpunit": "*",
+    "phpunit/phpunit": ">=10.0",
     "squizlabs/php_codesniffer": "*",
     "vimeo/psalm": "*"
   },
