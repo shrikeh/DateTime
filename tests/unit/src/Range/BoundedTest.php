@@ -46,7 +46,7 @@ final class BoundedTest extends TestCase
 
         $this->assertSame(2, $bounded->count());
     }
-    public function testItCanBoundTheStartDate(): void
+    public function testItCanBindTheStartDate(): void
     {
         $sevenDays = new DateTime('+7 days');
         $now = new DateTimeImmutable();
@@ -54,7 +54,7 @@ final class BoundedTest extends TestCase
         $twoHourAgo = new DateTimeImmutable('-2 hours');
         $unbounded = Range::unbounded($sevenDays, $threeHourAgo, $now, $twoHourAgo);
 
-        $bounded = new Bounded(
+        $bounded = Bounded::create(
             range: $unbounded,
             start: new DateTimeImmutable('-1 hour'),
         );
@@ -79,47 +79,6 @@ final class BoundedTest extends TestCase
         $this->assertEquals($twoHourAgo, $bounded->latest());
     }
 
-    public function testItThrowsAnExceptionIfThereIsNoStartDateAndEndBoundaries(): void
-    {
-        $sevenDays = new DateTime('+7 days');
-        $now = new DateTimeImmutable();
-        $twoHourAgo = new DateTimeImmutable('-2 hours');
-
-        $unbounded = Range::unbounded($sevenDays, $now, $twoHourAgo);
-
-        $this->expectExceptionObject(new BoundedRangeMustHaveOneBoundary());
-        $this->expectExceptionMessage(Message::BOUNDED_RANGE_ONE_BOUNDARY->msg());
-
-        new Bounded($unbounded);
-    }
-
-    public function testItThrowsAnExceptionIfTheStartBoundaryIsAfterTheEndBoundary(): void
-    {
-        $end = new DateTimeImmutable();
-        $start = new DateTimeImmutable('+1 second');
-
-        $this->expectExceptionObject(new StartDateTimeCannotBeAfterEndDateTime($start, $end));
-        $this->expectExceptionMessage(Message::START_BOUNDARY_AFTER_END_BOUNDARY->msg(
-            $start->format('U.u'),
-            $end->format('U.u'),
-        ));
-        new Bounded(Range::unbounded($start, $end,), $start, $end);
-    }
-
-
-
-    public function testItThrowsAnExceptionIfTheStartBoundaryIsEqualToTheEndBoundary(): void
-    {
-        $same = new DateTimeImmutable();
-
-        $this->expectExceptionObject(new StartDateTimeCannotBeAfterEndDateTime($same, $same));
-        $this->expectExceptionMessage(Message::START_BOUNDARY_AFTER_END_BOUNDARY->msg(
-            $same->format('U.u'),
-            $same->format('U.u'),
-        ));
-        new Bounded(Range::unbounded($same, $same,), $same, $same);
-    }
-
     public function testItReturnsAPeriod(): void
     {
         $sevenDays = new DateTime('+7 days');
@@ -137,8 +96,49 @@ final class BoundedTest extends TestCase
             $anHourAgo,
             $twoHourAgo
         );
-        $period = $bounded->period();
+        $period = $bounded->toPeriod();
         $this->assertEquals($anHourAgo, $period->start);
         $this->assertEquals($now, $period->end);
+    }
+
+    public function testItThrowsAnExceptionIfThereIsNoStartDateAndEndBoundaries(): void
+    {
+        $sevenDays = new DateTime('+7 days');
+        $now = new DateTimeImmutable();
+        $twoHourAgo = new DateTimeImmutable('-2 hours');
+
+        $unbounded = Range::unbounded($sevenDays, $now, $twoHourAgo);
+
+        $this->expectExceptionObject(new BoundedRangeMustHaveOneBoundary());
+        $this->expectExceptionMessage(Message::BOUNDED_RANGE_ONE_BOUNDARY->msg());
+
+        Bounded::create($unbounded);
+    }
+
+    public function testItThrowsAnExceptionIfTheStartBoundaryIsAfterTheEndBoundary(): void
+    {
+        $end = new DateTimeImmutable();
+        $start = new DateTimeImmutable('+1 second');
+
+        $this->expectExceptionObject(new StartDateTimeCannotBeAfterEndDateTime($start, $end));
+        $this->expectExceptionMessage(Message::START_BOUNDARY_AFTER_END_BOUNDARY->msg(
+            $start->format('U.u'),
+            $end->format('U.u'),
+        ));
+
+        Bounded::create(Range::unbounded($start, $end,), $start, $end);
+    }
+
+    public function testItThrowsAnExceptionIfTheStartBoundaryIsEqualToTheEndBoundary(): void
+    {
+        $same = new DateTimeImmutable();
+
+        $this->expectExceptionObject(new StartDateTimeCannotBeAfterEndDateTime($same, $same));
+        $this->expectExceptionMessage(Message::START_BOUNDARY_AFTER_END_BOUNDARY->msg(
+            $same->format('U.u'),
+            $same->format('U.u'),
+        ));
+
+        Bounded::create(Range::unbounded($same, $same,), $same, $same);
     }
 }

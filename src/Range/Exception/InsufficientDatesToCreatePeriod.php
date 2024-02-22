@@ -16,8 +16,8 @@ final class InsufficientDatesToCreatePeriod extends RuntimeException implements 
     /**
      * @param RangeInterface $range
      */
-    public function __construct(public readonly RangeInterface $range)
+    public function __construct(int $count)
     {
-        parent::__construct(self::MSG->msg($this->range->count()));
+        parent::__construct(self::MSG->msg($count));
     }
 }

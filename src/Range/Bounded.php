@@ -4,80 +4,69 @@ declare(strict_types=1);
 
 namespace Shrikeh\DateTime\Range;
 
-use DateTimeImmutable;
 use DateTimeInterface;
 use Generator;
 use Shrikeh\DateTime\Period;
 use Shrikeh\DateTime\Range\Exception\BoundedRangeMustHaveOneBoundary;
 use Shrikeh\DateTime\Range\Exception\StartDateTimeCannotBeAfterEndDateTime;
+use Shrikeh\DateTime\Range\Traits\Count;
+use Shrikeh\DateTime\Range\Traits\Earliest;
+use Shrikeh\DateTime\Range\Traits\InPeriod;
+use Shrikeh\DateTime\Range\Traits\Intervals;
+use Shrikeh\DateTime\Range\Traits\Invokeable;
+use Shrikeh\DateTime\Range\Traits\Latest;
+use Shrikeh\DateTime\Range\Traits\ToPeriod;
 
 final readonly class Bounded implements RangeInterface
 {
-    private Period $period;
+    use InPeriod;
+    use Count;
+    use Invokeable;
+    use Intervals;
+    use ToPeriod;
+    use Earliest;
+    use Latest;
+
+    public static function create(
+        RangeInterface $range,
+        ?DateTimeInterface $start = null,
+        ?DateTimeInterface $end = null,
+    ): self {
+        if (!($start || $end)) {
+            throw new BoundedRangeMustHaveOneBoundary();
+        }
+        if (($start && $end) && ($start >= $end)) {
+            throw new StartDateTimeCannotBeAfterEndDateTime($start, $end);
+        }
+
+        $start = $start ?? $range->earliest();
+        $end = $end ?? $range->latest();
+
+        return new self($range, Period::create($start, $end));
+    }
 
     public function __construct(
         public RangeInterface $range,
-        public ?DateTimeInterface $start = null,
-        public ?DateTimeInterface $end = null,
+        public Period $period
     ) {
-        $this->assertValid($start, $end);
 
-        $start = $this->start ?? $this->range->earliest();
-        $end = $this->end ?? $this->range->latest();
-        $this->period = Period::create($start, $end);
-    }
-
-    public function __invoke(): Generator
-    {
-        $range = $this->range;
-        foreach ($range() as $dateTime) {
-            if ($this->period->covers($dateTime)) {
-                yield $dateTime;
-            }
-        }
-    }
-
-    public function count(): int
-    {
-        return count(iterator_to_array($this()));
     }
 
     public function add(DateTimeInterface ...$dateTimes): RangeInterface
     {
         return new self(
             $this->range->add(...$dateTimes),
-            $this->start,
-            $this->end,
+            $this->period,
         );
     }
 
-    public function earliest(): ?DateTimeImmutable
+    private function dates(): Generator
     {
-        $bounded = $this();
-        return $bounded->valid() ? $bounded->current() : null;
-    }
-
-    public function latest(): ?DateTimeImmutable
-    {
-        $bounded = null;
-        foreach ($this() as $bounded) {
-        }
-
-        return $bounded;
-    }
-
-    public function period(): Period
-    {
-        return Period::fromRange($this);
-    }
-
-    private function assertValid(?DateTimeInterface $start = null, ?DateTimeInterface $end = null): void
-    {
-        if (!($start || $end)) {
-            throw new BoundedRangeMustHaveOneBoundary();
-        }
-        if (($start && $end) && ($start >= $end)) {
-            throw new StartDateTimeCannotBeAfterEndDateTime($start, $end);
+        $range = $this->range;
+        foreach ($range() as $dateTime) {
+            if ($this->period->covers($dateTime)) {
+                yield $dateTime;
+            }
         }
     }
 }

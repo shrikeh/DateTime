@@ -15,13 +15,12 @@ use Shrikeh\DateTime\Range\Unbounded;
 readonly final class Period
 {
     /**
-     * @param DateTimeInterface $first
-     * @param DateTimeInterface $second
+     * @param DateTimeInterface ...$dates
      * @return self
      */
-    public static function create(DateTimeInterface $first, DateTimeInterface $second): self
+    public static function create(DateTimeInterface... $dates): self
     {
-        return self::fromRange(Unbounded::fromDateTimes($first, $second));
+        return self::fromRange(Unbounded::fromDateTimes(...$dates));
     }
 
     /**
@@ -30,7 +29,10 @@ readonly final class Period
      */
     public static function fromRange(RangeInterface $range): self
     {
-        return new self($range->earliest(), $range->latest());
+        return new self(
+            DateTimeImmutable::createFromInterface($range->earliest()),
+            DateTimeImmutable::createFromInterface($range->latest()),
+        );
     }
 
     /**
@@ -51,10 +53,10 @@ readonly final class Period
     }
 
     /**
-     * @param DateTimeImmutable $dateTime
+     * @param DateTimeInterface $dateTime
      * @return bool
      */
-    public function covers(DateTimeImmutable $dateTime): bool
+    public function covers(DateTimeInterface $dateTime): bool
     {
         return ($dateTime > $this->start) && ($dateTime < $this->end);
     }

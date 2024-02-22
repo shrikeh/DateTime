@@ -8,6 +8,7 @@ use DateInterval;
 use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 use Shrikeh\DateTime\Period;
+use Shrikeh\DateTime\Range;
 
 final class PeriodTest extends TestCase
 {
@@ -180,10 +181,10 @@ final class PeriodTest extends TestCase
 
         $weekly = new DateInterval('P1D');
 
-        $period = Period::create(
+        $period = Period::fromRange(Range::unbounded(
             $start,
             $end,
-        );
+        ));
         $recurrence = $period;
         $periods = 0;
         foreach ($period->recurUntil($weekly, $recurUntil, false) as $recurringPeriod) {
