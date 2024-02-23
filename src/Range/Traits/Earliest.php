@@ -15,7 +15,7 @@ trait Earliest
 
         $earliest = array_key_first($sorted);
 
-        return (null !== $earliest) ? $sorted[$earliest]: null;
+        return (null !== $earliest) ? $sorted[$earliest] : null;
     }
 
     /**

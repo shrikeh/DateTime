@@ -15,7 +15,7 @@ trait Latest
 
         $latest = array_key_last($sorted);
 
-        return (null !== $latest) ? $sorted[$latest]: null;
+        return (null !== $latest) ? $sorted[$latest] : null;
     }
 
     /**

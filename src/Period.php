@@ -9,6 +9,7 @@ use DatePeriod;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Generator;
+use Shrikeh\DateTime\Period\DurationDateInterval;
 use Shrikeh\DateTime\Range\RangeInterface;
 use Shrikeh\DateTime\Range\Unbounded;
 
@@ -18,7 +19,7 @@ readonly final class Period
      * @param DateTimeInterface ...$dates
      * @return self
      */
-    public static function create(DateTimeInterface... $dates): self
+    public static function create(DateTimeInterface ...$dates): self
     {
         return self::fromRange(Unbounded::fromDateTimes(...$dates));
     }
@@ -84,10 +85,39 @@ readonly final class Period
         return new self($start, $end);
     }
 
+    public function recurTimes(DateInterval $offset, int $recurTimes): Generator
+    {
+        $offset = DurationDateInterval::normalize($offset);
+        $recurrences = DatePeriod::createFromISO8601String(
+            sprintf(
+                'R%d/%s/%s',
+                $recurTimes,
+                UTC::convert($this->end)->format('Y-m-d\TH:i:s\Z'),
+                $offset->toString(),
+            ),
+            DatePeriod::EXCLUDE_START_DATE,
+        );
+
+        yield from $this->recur($recurrences);
+    }
+
     public function recurUntil(DateInterval $offset, DateTimeInterface $until, bool $includeEndDate = true): Generator
     {
-        $datePeriod = new DatePeriod($this->end, $offset, $until, $this->recurrenceOptions($includeEndDate));
-        foreach ($datePeriod as $end) {
+        $recurrences = new DatePeriod(
+            $this->end,
+            $offset,
+            DateTimeImmutable::createFromInterface($until),
+            $this->recurrenceOptions($includeEndDate)
+        );
+
+        yield from $this->recur($recurrences);
+    }
+
+    private function recur(DatePeriod $recurrences): Generator
+    {
+        /** @var DateTimeImmutable $end */
+        foreach ($recurrences as $end) {
+            $end = $end->setTimezone($this->end->getTimezone());
             yield new self($end->sub($this->interval()), $end);
         }
     }

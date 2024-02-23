@@ -49,7 +49,6 @@ final readonly class Bounded implements RangeInterface
         public RangeInterface $range,
         public Period $period
     ) {
-
     }
 
     public function add(DateTimeInterface ...$dateTimes): RangeInterface
