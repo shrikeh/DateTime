@@ -10,7 +10,7 @@
     }
   ],
   "require": {
-    "php": ">=8.2"
+    "php": ">=8.3"
   },
   "require-dev": {
     "symfony/dotenv": "^7.0",
@@ -27,7 +27,9 @@
     "phpunit/phpcov": "*",
     "phpunit/phpunit": ">=10.0",
     "squizlabs/php_codesniffer": "*",
-    "vimeo/psalm": "*"
+    "vimeo/psalm": "*",
+    "shrikeh/php-coding-bible": "dev-main",
+    "dealerdirect/phpcodesniffer-composer-installer": "^0.7.2"
   },
   "minimum-stability": "dev",
   "autoload": {
@@ -70,11 +72,11 @@
       "@composer normalize"
     ],
     "infection": [
-      "@putenv INFECTION_ALLOW_XDEBUG=1",
+      "@putenv INFE CTION_ALLOW_XDEBUG=1",
       "php -d 'xdebug.mode=coverage' vendor/bin/infection -vvv --coverage=build/coverage --show-mutations --threads=8  --min-covered-msi=${MIN_COVERED_MSI:-100} --min-msi=${MIN_MSI:-100}"
     ],
     "install-codestandards": [
-      "Dealerdirect\\Composer\\Plugin\\Installers\\PHPCodeSniffer\\Plugin::run"
+      "PHPCSStandards\\Composer\\Plugin\\Installers\\PHPCodeSniffer\\Plugin::run"
     ],
     "metrics": [
       "@phpunit:all",
@@ -100,5 +102,11 @@
     "test": [
       "@phpunit"
     ]
-  }
+  },
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/shrikeh/php-coding-bible"
+    }
+  ]
 }

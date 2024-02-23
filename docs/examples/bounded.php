@@ -29,7 +29,7 @@ foreach ($bounded() as $dateTime) {
 /**
  * Convert the range into a period spanning the earliest and latest datetimes
  */
-$period = $bounded->period();
+$period = $bounded->toPeriod();
 print "Showing period for the unbounded range:\n";
 print sprintf("%s\n", $period->start->format(DATE_ATOM));
 print sprintf("%s\n", $period->end->format(DATE_ATOM));

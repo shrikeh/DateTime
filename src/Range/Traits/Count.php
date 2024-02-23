@@ -9,7 +9,6 @@ use Iterator;
 
 trait Count
 {
-
     /**
      * @return int
      */

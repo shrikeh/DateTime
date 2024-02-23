@@ -187,6 +187,7 @@ final class PeriodTest extends TestCase
         ));
         $recurrence = $period;
         $periods = 0;
+        /** @var Period $recurringPeriod */
         foreach ($period->recurUntil($weekly, $recurUntil, false) as $recurringPeriod) {
             $this->assertEquals(
                 $recurrence->start->add($weekly),
@@ -200,6 +201,40 @@ final class PeriodTest extends TestCase
 
         $this->assertEquals(
             new DateTimeImmutable('2024-03-29 22:30:00'),
+            $recurrence->end,
+        );
+    }
+
+    public function testItCanRecurANumberOfTimes(): void
+    {
+        $start = new DateTimeImmutable('2024-03-01 19:30:00');
+        $end = new DateTimeImmutable('2024-03-01 22:30:00');
+
+        $daily = new DateInterval('P1D');
+
+        $period = Period::fromRange(Range::unbounded(
+            $start,
+            $end,
+        ));
+        $recurrence = $period;
+        $periods = 0;
+        $recurrences = 5;
+
+
+        /** @var Period $recurringPeriod */
+        foreach ($period->recurTimes($daily, $recurrences) as $recurringPeriod) {
+            $this->assertEquals(
+                $recurrence->start->add($daily),
+                $recurringPeriod->start,
+            );
+            $recurrence = $recurringPeriod;
+            $periods++;
+        }
+
+        $this->assertSame(5, $periods);
+
+        $this->assertEquals(
+            new DateTimeImmutable('2024-03-06 22:30:00'),
             $recurrence->end,
         );
     }
