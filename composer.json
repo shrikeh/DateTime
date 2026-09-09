@@ -13,7 +13,7 @@
     "php": ">=8.3"
   },
   "require-dev": {
-    "symfony/dotenv": "^7.0",
+    "symfony/dotenv": "^8.0",
     "behat/behat": "*",
     "ergebnis/composer-normalize": "*",
     "infection/infection": "*",
